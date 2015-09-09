@@ -76,11 +76,9 @@ hostname: {{ .HOSTNAME }}
         tmpl_map["ETCD_NAME"], _ = arguments["-n"].(string)
     }
     tmpl_map["ETCD_DISCOVERY"], ok = arguments["-d"].(string)  
-    if tmpl_map["ETCD_DISCOVERY"] == DEFAULT_ETCD_DISCOVERY {
-       token, ok := arguments["-t"].(string)
-       if ok == true {  
-         tmpl_map["ETCD_DISCOVERY"] = DEFAULT_ETCD_DISCOVERY[0:len(DEFAULT_ETCD_DISCOVERY)-5]+token
-       }
+    token, ok := arguments["-t"].(string)
+    if ok == true {  
+        tmpl_map["ETCD_DISCOVERY"] = DEFAULT_ETCD_DISCOVERY[0:len(DEFAULT_ETCD_DISCOVERY)-5]+token
     }
     tmpl_map["ETCD_ADDR"], ok = arguments["-e"].(string)  
     tmpl_map["ETCD_PEER_URLS"], ok = arguments["-i"].(string)  
@@ -101,6 +99,8 @@ hostname: {{ .HOSTNAME }}
     }
     
     workdir, _ := ioutil.TempDir(dest, "coreos")
+    defer os.RemoveAll(workdir)
+
     _ = os.MkdirAll(workdir + "/openstack/latest", 0777)
     
     f, _ := os.Create(workdir + "/openstack/latest/user_data")
@@ -112,6 +112,6 @@ hostname: {{ .HOSTNAME }}
     fmt.Println("Wrote the following config:\n")
     _ = tmpl.Execute(os.Stdout, tmpl_map)
 
-    // defer RemoveAll(workdir)
+    mkisofs(workdir + "/openstack", workdir + "/" + tmpl_map["HOSTNAME"] + ".iso")
 
 }
