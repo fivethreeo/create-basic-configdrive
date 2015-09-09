@@ -5,7 +5,7 @@ package main
 import (
     "fmt"
     ole "github.com/go-ole/go-ole"
-	"github.com/go-ole/go-ole/oleutil"
+    "github.com/go-ole/go-ole/oleutil"
 )
 
 
@@ -13,18 +13,18 @@ func mkisofs(dir string, isofile string){
 
     ole.CoInitialize(0)
     
-	unknown, _ := oleutil.CreateObject("IMAPI2FS.MsftFileSystemImage")
-	
-	image, _ := unknown.QueryInterface(ole.IID_IDispatch)
-	
-	oleutil.PutProperty(image, "VolumeName", "config-2")
+    unknown, _ := oleutil.CreateObject("IMAPI2FS.MsftFileSystemImage")
     
-	oleutil.MustCallMethod(image,
+    image, _ := unknown.QueryInterface(ole.IID_IDispatch)
+    
+    oleutil.PutProperty(image, "VolumeName", "config-2")
+    
+    oleutil.MustCallMethod(image,
         "ChooseImageDefaultsForMediaType", 12).ToIDispatch()
         
-	root := oleutil.MustGetProperty(image, "Root").ToIDispatch()
+    root := oleutil.MustGetProperty(image, "Root").ToIDispatch()
     
-	oleutil.MustCallMethod(root, "AddTree", dir, true)
+    oleutil.MustCallMethod(root, "AddTree", dir, true)
         
     result := oleutil.MustCallMethod(image, "CreateResultImage").ToIDispatch()
     
@@ -38,7 +38,7 @@ func mkisofs(dir string, isofile string){
     root.Release()
     result.Release()
     //stream.Release()
-    	
+        
     ole.CoUninitialize()
 
     return
