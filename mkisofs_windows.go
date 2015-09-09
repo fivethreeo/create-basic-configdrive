@@ -3,32 +3,44 @@
 package main
 
 import (
-//    "fmt"
-    "syscall"
-//    "unsafe"
+    "fmt"
+    ole "github.com/go-ole/go-ole"
+	"github.com/go-ole/go-ole/oleutil"
 )
 
-var (
-    kernel32, _        = syscall.LoadLibrary("kernel32.dll")
-    getModuleHandle, _ = syscall.GetProcAddress(kernel32, "GetModuleHandleW")
-)
 
-func abort(funcname string, err error) {
-    //panic(fmt.Sprintf("%s failed: %v", funcname, err))
-    return
-}
 func mkisofs(dir string, isofile string){
-    return
-}
 
+    ole.CoInitialize(0)
+    
+	unknown, _ := oleutil.CreateObject("IMAPI2FS.MsftFileSystemImage")
+	
+	image, _ := unknown.QueryInterface(ole.IID_IDispatch)
+	
+	oleutil.PutProperty(image, "VolumeName", "config-2")
+    
+	oleutil.MustCallMethod(image,
+        "ChooseImageDefaultsForMediaType", 12).ToIDispatch()
+        
+	root := oleutil.MustGetProperty(image, "Root").ToIDispatch()
+    
+	oleutil.MustCallMethod(root, "AddTree", dir, true)
+        
+    result := oleutil.MustCallMethod(image, "CreateResultImage").ToIDispatch()
+    
+    //stream := oleutil.MustGetProperty(result, "ImageStream").ToIDispatch()
+    blocksize := int(oleutil.MustGetProperty(result, "BlockSize").Val)
+    totalblocks := int(oleutil.MustGetProperty(result, "TotalBlocks").Val)
 
-func GetModuleHandle() (handle uintptr) {
-    defer syscall.FreeLibrary(kernel32)
-    var nargs uintptr = 0
-    if ret, _, callErr := syscall.Syscall(uintptr(getModuleHandle), nargs, 0, 0, 0); callErr != 0 {
-        abort("Call GetModuleHandle", callErr)
-    } else {
-        handle = ret
-    }
+    fmt.Println("%s %s", blocksize, totalblocks)
+    
+    image.Release()
+    root.Release()
+    result.Release()
+    //stream.Release()
+    	
+    ole.CoUninitialize()
+
     return
+
 }

@@ -104,10 +104,10 @@ hostname: {{ .HOSTNAME }}
     _ = os.MkdirAll(workdir + "/openstack/latest", 0777)
     
     f, _ := os.Create(workdir + "/openstack/latest/user_data")
-    defer f.Close()
     
     tmpl, _ := template.New("test").Parse(tmpl_text)
     _ = tmpl.Execute(f, tmpl_map)
+    f.Close()
 
     fmt.Println("Wrote the following config:\n")
     _ = tmpl.Execute(os.Stdout, tmpl_map)
