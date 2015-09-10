@@ -5,6 +5,7 @@ package main
 import (
     "fmt"
     "log"
+    "bytes"
     "io"
     "io/ioutil"
     "os"
@@ -12,7 +13,6 @@ import (
     "path/filepath"
     "archive/zip"
     "net/http"
-    "bytes"
 )
 
 func Unzip(b []byte, size int, dest string) error {

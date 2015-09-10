@@ -41,7 +41,7 @@ Options:
     -h           This help.
 `
 
-    arguments, _ := docopt.Parse(usage, nil, true, "Coreos go tools 0.1", false)
+    arguments, _ := docopt.Parse(usage, nil, true, "Coreos create-basic-configdrive 0.1", false)
     
     var DEFAULT_ETCD_DISCOVERY string = "https//discovery.etcd.io/TOKEN"
     
