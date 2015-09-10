@@ -99,7 +99,7 @@ hostname: {{ .HOSTNAME }}
     }
     
     workdir, _ := ioutil.TempDir(dest, "coreos")
-    defer os.RemoveAll(workdir)
+    //defer os.RemoveAll(workdir)
 
     _ = os.MkdirAll(workdir + "/openstack/latest", 0777)
     
@@ -112,6 +112,6 @@ hostname: {{ .HOSTNAME }}
     fmt.Println("Wrote the following config:\n")
     _ = tmpl.Execute(os.Stdout, tmpl_map)
 
-    mkisofs(workdir + "/openstack", workdir + "/" + tmpl_map["HOSTNAME"] + ".iso")
+    mkisofs(workdir, workdir + "/openstack", workdir + "/" + tmpl_map["HOSTNAME"] + ".iso")
 
 }
