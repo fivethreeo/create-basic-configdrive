@@ -100,7 +100,7 @@ hostname: {{ .HOSTNAME }}
     }
     
     workdir, _ := ioutil.TempDir(dest, "coreos")
-    //defer os.RemoveAll(workdir)
+    defer os.RemoveAll(workdir)
 
     _ = os.MkdirAll(filepath.Join(workdir, "/openstack/latest"), 0777)
     
