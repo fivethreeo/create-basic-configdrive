@@ -4,6 +4,7 @@ import (
     "fmt"
     "os"
     "io/ioutil"
+    "path/filepath"
     "text/template"
     "github.com/docopt/docopt-go"
 )
@@ -99,11 +100,11 @@ hostname: {{ .HOSTNAME }}
     }
     
     workdir, _ := ioutil.TempDir(dest, "coreos")
-    defer os.RemoveAll(workdir)
+    //defer os.RemoveAll(workdir)
 
-    _ = os.MkdirAll(workdir + "/openstack/latest", 0777)
+    _ = os.MkdirAll(filepath.Join(workdir, "/openstack/latest"), 0777)
     
-    f, _ := os.Create(workdir + "/openstack/latest/user_data")
+    f, _ := os.Create(filepath.Join(workdir, "/openstack/latest/user_data"))
     
     tmpl, _ := template.New("test").Parse(tmpl_text)
     _ = tmpl.Execute(f, tmpl_map)
@@ -112,6 +113,6 @@ hostname: {{ .HOSTNAME }}
     fmt.Println("Wrote the following config:\n")
     _ = tmpl.Execute(os.Stdout, tmpl_map)
 
-    mkisofs(workdir, workdir + "/openstack", workdir + "/" + tmpl_map["HOSTNAME"] + ".iso")
+    mkisofs(workdir, "openstack", dest, tmpl_map["HOSTNAME"] + ".iso")
 
 }

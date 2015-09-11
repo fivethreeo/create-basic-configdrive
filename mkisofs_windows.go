@@ -6,6 +6,7 @@ import (
     "fmt"
     "log"
     "bytes"
+    "strings"
     "io"
     "io/ioutil"
     "os"
@@ -30,39 +31,44 @@ func Unzip(b []byte, size int, dest string) error {
 
     // Closure to address file descriptors issue with all the deferred .Close() methods
     extractAndWriteFile := func(f *zip.File) error {
-        rc, err := f.Open()
-        if err != nil {
-            return err
-        }
-        defer func() {
-            if err := rc.Close(); err != nil {
-                panic(err)
-            }
-        }()
 
-        path := filepath.Join(dest, f.Name)
+        if equal := strings.Index(f.Name, `Binary/MinGW/Gcc-4.4.5/mkisofs.exe`); equal >= 0 {
 
-        if f.FileInfo().IsDir() {
-            os.MkdirAll(path, f.Mode())
-        } else {
-            f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+    		rc, err := f.Open()
             if err != nil {
                 return err
             }
             defer func() {
-                if err := f.Close(); err != nil {
+                if err := rc.Close(); err != nil {
                     panic(err)
                 }
             }()
-
-            _, err = io.Copy(f, rc)
-            if err != nil {
-                return err
+    
+            path := filepath.Join(dest, "mkisofs.exe")
+    
+            if f.FileInfo().IsDir() {
+                os.MkdirAll(path, f.Mode())
+            } else {
+                f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+                if err != nil {
+                    return err
+                }
+                defer func() {
+                    if err := f.Close(); err != nil {
+                        panic(err)
+                    }
+                }()
+    
+                _, err = io.Copy(f, rc)
+                if err != nil {
+                    return err
+                }
             }
         }
         return nil
     }
 
+	
     for _, f := range r.File {
         err := extractAndWriteFile(f)
         if err != nil {
@@ -99,11 +105,15 @@ var url string = "http://downloads.sourceforge.net/project/mkisofs-md5/mkisofs-m
 var querystring string = "?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmkisofs-md5%2Ffiles%2Fmkisofs-md5-v2.01%2Fmkisofs-md5-2.01-Binary.zip%2Fdownload&ts=1441282840&use_mirror=netcologne"
 var  uri string = url + querystring
 
-func mkisofs(workdir string, adddir string, isofile string){
+func mkisofs(workdir string, adddir string, destdir string, isofile string){
+    
+    addirfilepath := filepath.Join(workdir, adddir)
+    isofilepath := filepath.Join(destdir, isofile)
     
     DownloadUnzip(uri, workdir)
-    
-    cmd := exec.Command(workdir + `\Binary\MinGW\Gcc-4.4.5\mkisofs.exe`, "-R", "-V", "config-2", "-o", isofile, adddir)
+
+    cmd := exec.Command(workdir + `\mkisofs.exe`, "-R", "-V", "config-2", "-o", isofilepath, addirfilepath)
+    fmt.Printf("Running mkisofs.exe %s %s %s.\n", strings.Join(cmd.Args[1:len(cmd.Args)-2], " "), isofile, adddir)
     err := cmd.Run()
     if err != nil {
         log.Fatal(err)
