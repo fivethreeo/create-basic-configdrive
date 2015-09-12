@@ -41,6 +41,8 @@ VBoxManage storageattach "mymachine" --storagectl "IDE Controller" \
   --port 0 --device 0 --type hdd --medium mymachine.vdi
 VBoxManage storageattach "mymachine" --storagectl "IDE Controller" \
   --port 1 --device 0 --type dvddrive --medium myhostname.iso
+  
+VBoxManage startvm "mymachine"
 ```
 
 ## Contributing
