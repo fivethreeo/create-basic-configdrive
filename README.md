@@ -31,9 +31,10 @@ vboxmanage modifyvm "mymachine" --nic1 bridged --bridgeadapter1 "adapter"
 vboxmanage modifyvm "mymachine" --nic2 intnet --intnet2 intnet --nicpromisc2 allow-vms
 
 vboxmanage storagectl "mymachine" --name "IDE Controller" --add ide
-vboxmanage storageattach "mymachine" --storagectl "IDE Controller" --port 0 --device 0 --type hdd --medium coreos_production_766.3.0.vdi
-vboxmanage storageattach "mymachine" --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium myhostname.iso
-
+vboxmanage storageattach "mymachine" --storagectl "IDE Controller" \
+  --port 0 --device 0 --type hdd --medium coreos_production_766.3.0.vdi
+vboxmanage storageattach "mymachine" --storagectl "IDE Controller" \
+  --port 1 --device 0 --type dvddrive --medium myhostname.iso
 ```
 
 ## Contributing
