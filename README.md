@@ -16,7 +16,7 @@ go install github.com/fivethreeo/create-basic-configdrive
 Make sure you have mkisofs installed in linux
 ```
 create-basic-configdrive -h
-create-basic-configdrive -H myhostname -S ~/.ssh/mykey.pub
+create-basic-configdrive -H myhostname -S ~/.ssh/mykey.pub -t TOKEN
 ```
 
 To test the configdrive with virtualbox
