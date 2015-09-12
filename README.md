@@ -32,7 +32,7 @@ create-coreos-vdi
 VBoxManage clonehd coreos_production.vdi mymachine.vdi
 VBoxManage modifyhd mymachine.vdi --resize 10240
 
-VBoxManage createvm --name mymachine --register
+VBoxManage createvm --name "mymachine" --register
 
 VBoxManage modifyvm "mymachine" --memory 1024 --vram 128
 VBoxManage modifyvm "mymachine" --nic1 bridged --bridgeadapter1 "adapter"
