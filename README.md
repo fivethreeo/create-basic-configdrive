@@ -14,15 +14,18 @@ go install github.com/fivethreeo/create-basic-configdrive
 ## Usage
 
 Make sure you have mkisofs installed in linux
+```
+create-basic-configdrive -h
+create-basic-configdrive -H myhostname -S ~/.ssh/mykey.pub
+```
+
+To test the configdrive with virtualbox
 
 ```
 go get github.com/fivethreeo/create-coreos-vdi
 go install github.com/fivethreeo/create-coreos-vdi
 
 create-coreos-vdi
-
-create-basic-configdrive -h
-create-basic-configdrive -H myhostname -S ~/.ssh/mykey.pub
 
 vboxmanage createvm --name mymachine --register
 
