@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "os"
+    "strings"
     "io/ioutil"
     "path/filepath"
     "text/template"
@@ -13,7 +14,7 @@ func main() {
     usage := `
  
 Usage:
-    create-basic-configdrive -H HOSTNAME -S SSH_FILE [-p PATH] [-t TOKEN | -d URL] [-n NAME] [-e URL] [-i URL] [-l URLS] [-u URL] [-h] [-v]
+    create-basic-configdrive -H HOSTNAME -S SSH_FILE (-t TOKEN | -d URL) [-p PATH] [-n NAME] [-e URL] [-i URL] [-l URLS] [-u URL] [-h] [-v]
 
 Options:
     -H HOSTNAME  Machine hostname.
@@ -22,7 +23,7 @@ Options:
     -t TOKEN     Token ID from https://discovery.etcd.io.
                              
     -d URL       Full URL path to discovery endpoint.
-                 [default: https//discovery.etcd.io/TOKEN]
+                 [default: https://discovery.etcd.io/TOKEN]
                                 
     -n NAME      etcd node name (defaults to HOSTNAME).
                              
@@ -44,25 +45,26 @@ Options:
 
     arguments, _ := docopt.Parse(usage, nil, true, "Coreos create-basic-configdrive 0.1", false)
     
-    var DEFAULT_ETCD_DISCOVERY string = "https//discovery.etcd.io/TOKEN"
+    var DEFAULT_ETCD_DISCOVERY string = "https://discovery.etcd.io/TOKEN"
     
 
     tmpl_text := `#cloud-config
+
 coreos:
-    etcd2:
-        name: {{ .ETCD_NAME }}
-        advertise-client-urls: {{ .ETCD_ADDR }}
-        initial-advertise-peer-urls: {{ .ETCD_PEER_URLS }}
-        discovery: {{ .ETCD_DISCOVERY }}
-        listen-peer-urls: {{ .ETCD_LISTEN_PEER_URLS }}
-        listen-client-urls: {{ .ETCD_LISTEN_CLIENT_URLS }}
-    units:
-        - name: etcd2.service
-            command: start
-        - name: fleet.service
-            command: start
+  etcd2:
+    name: {{ .ETCD_NAME }}
+    advertise-client-urls: {{ .ETCD_ADDR }}
+    initial-advertise-peer-urls: {{ .ETCD_PEER_URLS }}
+    discovery: {{ .ETCD_DISCOVERY }}
+    listen-peer-urls: {{ .ETCD_LISTEN_PEER_URLS }}
+    listen-client-urls: {{ .ETCD_LISTEN_CLIENT_URLS }}
+  units:
+    - name: etcd2.service
+      command: start
+    - name: fleet.service
+      command: start
 ssh_authorized_keys:
-    - {{ .SSH_KEY }}
+  - {{ .SSH_KEY }}
 hostname: {{ .HOSTNAME }}
 `
     var tmpl_map map[string]string = make(map[string]string)
@@ -92,7 +94,7 @@ hostname: {{ .HOSTNAME }}
         fmt.Println("SSH keyfile does not exist.")
         os.Exit(1)
     }
-    tmpl_map["SSH_KEY"] = string(key_bytes)
+    tmpl_map["SSH_KEY"] = strings.TrimSpace(string(key_bytes))
 
     dest, ok := arguments["-p"].(string)
     if ok == false {
@@ -102,9 +104,9 @@ hostname: {{ .HOSTNAME }}
     workdir, _ := ioutil.TempDir(dest, "coreos")
     defer os.RemoveAll(workdir)
 
-    _ = os.MkdirAll(filepath.Join(workdir, "openstack", "latest"), 0777)
+    _ = os.MkdirAll(filepath.Join(workdir, "data", "openstack", "latest"), 0777)
     
-    f, _ := os.Create(filepath.Join(workdir, "openstack", "latest", "user_data"))
+    f, _ := os.Create(filepath.Join(workdir, "data", "openstack", "latest", "user_data"))
     
     tmpl, _ := template.New("test").Parse(tmpl_text)
     _ = tmpl.Execute(f, tmpl_map)
@@ -113,6 +115,6 @@ hostname: {{ .HOSTNAME }}
     fmt.Println("Wrote the following config:\n")
     _ = tmpl.Execute(os.Stdout, tmpl_map)
 
-    mkisofs(workdir, "openstack", dest, tmpl_map["HOSTNAME"] + ".iso")
+    mkisofs(workdir, "data", dest, tmpl_map["HOSTNAME"] + ".iso")
 
 }
