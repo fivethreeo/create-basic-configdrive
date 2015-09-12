@@ -21,6 +21,8 @@ create-basic-configdrive -H myhostname -S ~/.ssh/mykey.pub
 
 To test the configdrive with virtualbox
 
+Install virtualbox
+
 ```
 go get github.com/fivethreeo/create-coreos-vdi
 go install github.com/fivethreeo/create-coreos-vdi
