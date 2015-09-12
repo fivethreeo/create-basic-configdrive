@@ -27,16 +27,19 @@ go install github.com/fivethreeo/create-coreos-vdi
 
 create-coreos-vdi
 
-vboxmanage createvm --name mymachine --register
+VBoxManage clonehd coreos_production.vdi mymachine.vdi
+VBoxManage modifyhd mymachine.vdi --resize 10240
 
-vboxmanage modifyvm "mymachine" --memory 1024 --vram 128
-vboxmanage modifyvm "mymachine" --nic1 bridged --bridgeadapter1 "adapter"
-vboxmanage modifyvm "mymachine" --nic2 intnet --intnet2 intnet --nicpromisc2 allow-vms
+VBoxManage createvm --name mymachine --register
 
-vboxmanage storagectl "mymachine" --name "IDE Controller" --add ide
-vboxmanage storageattach "mymachine" --storagectl "IDE Controller" \
-  --port 0 --device 0 --type hdd --medium coreos_production_766.3.0.vdi
-vboxmanage storageattach "mymachine" --storagectl "IDE Controller" \
+VBoxManage modifyvm "mymachine" --memory 1024 --vram 128
+VBoxManage modifyvm "mymachine" --nic1 bridged --bridgeadapter1 "adapter"
+VBoxManage modifyvm "mymachine" --nic2 intnet --intnet2 intnet --nicpromisc2 allow-vms
+
+VBoxManage storagectl "mymachine" --name "IDE Controller" --add ide
+VBoxManage storageattach "mymachine" --storagectl "IDE Controller" \
+  --port 0 --device 0 --type hdd --medium mymachine.vdi
+VBoxManage storageattach "mymachine" --storagectl "IDE Controller" \
   --port 1 --device 0 --type dvddrive --medium myhostname.iso
 ```
 
